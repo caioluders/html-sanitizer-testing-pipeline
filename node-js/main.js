@@ -26,6 +26,8 @@
 const fs = require('fs');
 const pathModule = require('path');
 const argv = require("process.argv");
+const express = require('express');
+const bodyParser = require('body-parser');
 
 const DEBUG = false;
 
@@ -123,47 +125,85 @@ function sanitizeWithArcgis(payload){
 }
 
 
-function main(){
+const app = express();
 
-	const inputPathMarkupsDefault = './../markups.txt';
-	const outputFileDefault = './outputs/results.json';
+app.use(bodyParser.json());
 
-	// CLI arguments
-	const processArgv = argv(process.argv.slice(2));
-	const config = processArgv({}) || {};
-
-
-	// --input=/path/to/markups
-	var inputPathMarkups = inputPathMarkupsDefault;
-	if(config.input){
-		inputPathMarkups = config.input;
-	}
-
-	// --output=/path/to/outputs/file
-	var outputFile = outputFileDefault;
-	if(config.output){
-		outputFile = config.output;
-	}
-
-		// read inputs
-	const rawMarkups = readFile(inputPathMarkups);
-	if(rawMarkups === -1){
-		console.log('[[error]]: invalid input');
-		process.exit();
-	}
-
-
-	const markups = rawMarkups.split('\n');
-	var sanitizerResults = {
-		'insane-default':[],
+app.post('/sanitize', (req, res) => {
+	const markups = req.body.markups;
+	const sanitizerResults = {
+		'insane-default': [],
 		'insane-strict': [],
 		'bleach-default': [],
 		'bleach-strict': [],
 		'angular': [],
 		'arcgis': [],
 		'yahoopurify': []
+	};
+
+	for (let i = 0; i < markups.length; i++) {
+		const payload = markups[i];
+
+		// insane sanitizer
+		let output = sanitizeWithInsane(payload);
+		sanitizerResults['insane-default'].push({
+			input: payload,
+			output: output
+		});
+		output = sanitizeWithInsane(payload, 'strict');
+		sanitizerResults['insane-strict'].push({
+			input: payload,
+			output: output
+		});
+
+		// bleach sanitizer
+		output = sanitizeWithBleach(payload);
+		sanitizerResults['bleach-default'].push({
+			input: payload,
+			output: output
+		});
+		output = sanitizeWithBleach(payload, 'strict');
+		sanitizerResults['bleach-strict'].push({
+			input: payload,
+			output: output
+		});
+
+		// angular in node
+		if (mockAngularInNode) {
+			// calls ngSanitize.$sanitize(html) 
+			document.getElementById('sanitization-input').value = payload;
+			// read the output
+			output = document.getElementById('sanitization-output').innerHTML;
+			sanitizerResults['angular'].push({
+				input: payload,
+				output: output
+			});
+		}
+
+		// yahoo purify
+		output = sanitizeWithYahooPurifier(payload);
+		sanitizerResults['yahoopurify'].push({
+			input: payload,
+			output: output
+		});
+
+		// arcgis
+		output = sanitizeWithArcgis(payload);
+		sanitizerResults['arcgis'].push({
+			input: payload,
+			output: output
+		});
 	}
 
+	res.json(sanitizerResults);
+});
+
+app.listen(3000, () => {
+	console.log('Server is running on port 3000');
+});
+function main(){
+
+	
 	if(mockAngularInNode){
 		// angular initialization
 		let HTML_TEMPLATE = `<!DOCTYPE html>
@@ -216,73 +256,6 @@ function main(){
 		var app = window.angular.module('myApp', ['ngSanitize']);
 		app.controller('myCtrl', function($scope) { });
 	}
-
-	var output = '';
-	var payload = '';
-	for(let i=0; i<markups.length; i++){
-		
-
-		// insane sanitizer
-		payload = markups[i];
-		output = sanitizeWithInsane(payload);
-		sanitizerResults['insane-default'].push({
-			input: payload,
-			output: output
-		});
-
-		output = sanitizeWithInsane(payload, 'strict');
-		sanitizerResults['insane-strict'].push({
-			input: payload,
-			output: output
-		});
-
-
-		// bleach sanitizer
-		output = sanitizeWithBleach(payload);
-		sanitizerResults['bleach-default'].push({
-			input: payload,
-			output: output
-		});
-
-
-		output = sanitizeWithBleach(payload, 'strict');
-		sanitizerResults['bleach-strict'].push({
-			input: payload,
-			output: output
-		});
-
-		// angular in node
-		if(mockAngularInNode){
-			// calls ngSanitize.$sanitize(html) 
-			document.getElementById('sanitization-input').value = payload;
-			// read the output
-			output = document.getElementById('sanitization-output').innerHTML;
-			sanitizerResults['angular'].push({
-				input: payload,
-				output: output
-			});
-		}
-
-
-		// yahoo purify
-		output = sanitizeWithYahooPurifier(payload);
-		sanitizerResults['yahoopurify'].push({
-			input: payload,
-			output: output
-		});
-
-		// arcgis
-		output = sanitizeWithArcgis(payload);
-		sanitizerResults['arcgis'].push({
-			input: payload,
-			output: output
-		});
-
-	}	// end loop
-
-
-	fs.writeFileSync(outputFile, JSON.stringify(sanitizerResults, null, 4));
-
 
 }
 

@@ -5,6 +5,7 @@
     "angular-sanitize": "^1.8.2",
     "bleach": "^0.3.0",
     "domino": "^2.1.6",
+    "express": "^4.19.2",
     "fs": "^0.0.1-security",
     "html-purify": "^1.1.0",
     "insane": "^2.6.2",
