@@ -32,24 +32,36 @@
 
 ini_set('memory_limit', '8192M');
 
-// process CLI arguments
-$cli_params = array_fill(0, 3, null);
+// // process CLI arguments
+// $cli_params = array_fill(0, 3, null);
  
-for($i = 1; $i < $argc; $i++) {
-    $cli_params[$i - 1] = $argv[$i];
-}
+// for($i = 1; $i < $argc; $i++) {
+//     $cli_params[$i - 1] = $argv[$i];
+// }
 
-$input_file_path_name = $cli_params[0];
-$output_file_path_name = $cli_params[1];
+// $input_file_path_name = $cli_params[0];
+// $output_file_path_name = $cli_params[1];
 
-if(is_null($input_file_path_name)){
-	$input_file_path_name = './../markups.txt';
-}
-if(is_null($output_file_path_name)){
-	$output_file_path_name = './outputs/results.json';
-}
+// if(is_null($input_file_path_name)){
+// 	$input_file_path_name = './../markups.txt';
+// }
+// if(is_null($output_file_path_name)){
+// 	$output_file_path_name = './outputs/results.json';
+// }
 
-$lines = file($input_file_path_name, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) or die("Unable to open input file!");
+// $lines = file($input_file_path_name, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) or die("Unable to open input file!");
+
+// Get the JSON from the POST body
+$json = file_get_contents('php://input');
+
+// Decode the JSON into an array
+$lines = json_decode($json, true);
+$lines = $lines["markups"];
+
+// Check if decoding was successful
+if ($lines === null) {
+    die("Unable to decode JSON!");
+}
 
 
 
@@ -269,8 +281,14 @@ foreach($lines as $idx => $payload){
 
 }
 
+// file_put_contents($output_file_path_name, $json);
+$json = json_encode($results, JSON_PRETTY_PRINT);
+header('Content-Type: application/json');
+echo $json;
+
+
 // write to output
-file_put_contents($output_file_path_name, json_encode($results, JSON_PRETTY_PRINT));
+// file_put_contents($output_file_path_name, json_encode($results, JSON_PRETTY_PRINT));
 
 
 ?>
