@@ -27,7 +27,7 @@ php/composer.lock
 
 # vs code
 .vs
-
+.vscode
 # python
 *.pyc
 
