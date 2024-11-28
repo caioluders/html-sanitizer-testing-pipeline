@@ -1,0 +1,18 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/../genetic_payload_generator/app.js",
+            "args":["--url=http://127.0.0.1:3003/","--html-tags=/Users/caioluders/Desktop/tmp/detect_sanitize_payload/genetic_payload_generator/html-tags.txt"]
+        }
+    ]
+}

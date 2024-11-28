@@ -129,29 +129,30 @@ Within a few moments, you can see the results in the `clientside/outputs` folder
 
 You can test the following sanitizers using HTML-ST:
 
-| **Language**    | **Sanitizer**           | **Link**                                                                                            | **API** |
-|---------------- |------------------------ |---------------------------------------------------------------------------------------------------- |---------|
-| Client-side JS  | DOMPurify               | https://github.com/cure53/DOMPurify                                                                 | [ ]     |
-|                 | Google Closure Library  | https://github.com/google/closure-library/blob/master/closure/goog/html/sanitizer/htmlsanitizer.js  | [ ]     |
-|                 | JS-XSS                  | https://github.com/leizongmin/js-xss                                                                | [ ]     |
-|                 | Sanitize-HTML           | https://github.com/apostrophecms/sanitize-html                                                      | [ ]     |
-|                 | Google Caja             | https://code.google.com/archive/p/google-caja/wikis/JsHtmlSanitizer.wiki                            | [ ]     |
-|                 | Angular-sanitize        | https://docs.angularjs.org/api/ngSanitize/service/$sanitize                                         | [ ]     |
-| Node.js         | Insane                  | https://github.com/bevacqua/insane                                                                  | [X]     |
-|                 | Bleach                  | https://www.npmjs.com/package/bleach                                                                | [X]     |
-|                 | Angular-sanitize        | https://www.npmjs.com/package/angular-sanitize                                                      | [?]     |
-|                 | Yahoo Html-purify       | https://www.npmjs.com/package/html-purify                                                           | [X]     |
-|                 | Arcgis                  | https://www.npmjs.com/package/@esri/arcgis-html-sanitizer                                           | [X]     |
-| Python          | Mozilla Bleach          | https://pypi.org/project/bleach/                                                                    | [X]     |
-|                 | LXML                    | https://pypi.org/project/lxml/                                                                      | [ ]     |
-|                 | HTML Sanitizer          | https://pypi.org/project/html-sanitizer/                                                            | [ ]     |
+| **Language**    | **Sanitizer**           | **Link**                                                                                            | **API** | **Version** |
+|---------------- |------------------------ |---------------------------------------------------------------------------------------------------- |---------|-------------|
+| Client-side JS  | DOMPurify               | https://github.com/cure53/DOMPurify                                                                 | [X]     | 3.1.7       |
+| Docker X        | Google Closure Library  | https://github.com/google/closure-library/blob/master/closure/goog/html/sanitizer/htmlsanitizer.js  | [ ]     | .           |
+| Port 3003       | JS-XSS                  | https://github.com/leizongmin/js-xss                                                                | [X]     | 1.0.15      |
+|                 | Sanitize-HTML           | https://github.com/apostrophecms/sanitize-html                                                      | [X]     |
+|                 | Google Caja             | https://code.google.com/archive/p/google-caja/wikis/JsHtmlSanitizer.wiki                            | [X]     |
+|                 | Angular-sanitize        | https://docs.angularjs.org/api/ngSanitize/service/$sanitize                                         | [X]     |
+| Node.js         | Insane                  | https://github.com/bevacqua/insane                                                                  | [X]     | 2.6.2
+| Docker X        | Bleach                  | https://www.npmjs.com/package/bleach                                                                | [X]     | 0.3.0
+| Port 3000       | Angular-sanitize        | https://www.npmjs.com/package/angular-sanitize                                                      | [?]     | 1.8.3
+|                 | Yahoo Html-purify       | https://www.npmjs.com/package/html-purify                                                           | [X]     | 1.1.0
+|                 | Arcgis                  | https://www.npmjs.com/package/@esri/arcgis-html-sanitizer                                           | [X]     | 4.0.3
+|                 | DOMPurify               | https://www.npmjs.com/package/dompurify                                                             | [X]     | 3.1.7
+| Python          | Mozilla Bleach          | https://pypi.org/project/bleach/                                                                    | [X]     | 6.1.0
+| Docker X        | LXML                    | https://pypi.org/project/lxml/                                                                      | [ ]     |
+| Port 3001       | HTML Sanitizer          | https://pypi.org/project/html-sanitizer/                                                            | [X]     | 2.4.4
 |                 | HTMLLaundry             | https://pypi.org/project/htmllaundry/                                                               | [ ]     |
-|                 | Django-html-sanitizer   | https://pypi.org/project/django-html_sanitizer/                                                     | [X]     |
-| PHP             | Htmlpurifier            | https://packagist.org/packages/ezyang/htmlpurifier                                                  | [ ]     |
-|                 | HTML-sanitizer          | https://packagist.org/packages/tgalopin/html-sanitizer                                              | [ ]     |
-|                 | Symfony Sanitizer       | https://packagist.org/packages/symfony/html-sanitizer                                               | [ ]     |
-|                 | HTMLawed                | https://packagist.org/packages/htmlawed/htmlawed                                                    | [ ]     |
-|                 | Typo3 Sanitizer         | https://packagist.org/packages/typo3/html-sanitizer                                                 | [ ]     |
+|                 | Django-html-sanitizer   | https://pypi.org/project/django-html_sanitizer/                                                     | [X]     | 0.1.5
+| PHP             | Htmlpurifier            | https://packagist.org/packages/ezyang/htmlpurifier                                                  | [X]     | 4.17
+| Docker X        | HTML-sanitizer          | https://packagist.org/packages/tgalopin/html-sanitizer                                              | [X]     | 1.5
+| Port 3002       | Symfony Sanitizer       | https://packagist.org/packages/symfony/html-sanitizer                                               | [X]     | 7.1.5
+|                 | HTMLawed                | https://packagist.org/packages/htmlawed/htmlawed                                                    | [X]     |
+|                 | Typo3 Sanitizer         | https://packagist.org/packages/typo3/html-sanitizer                                                 | [X]     | 2.1.4
 | C#              | AntiXssEncoder          | https://learn.microsoft.com/en-us/dotnet/api/system.web.security.antixss                            | [ ]     |
 |                 | HTMLSanitizer           | https://www.nuget.org/packages/HtmlSanitizer                                                        | [ ]     |
 |                 | AjaxToolKit             | https://www.nuget.org/packages/AjaxControlToolkit.HtmlEditor.Sanitizer/                             | [ ]     |

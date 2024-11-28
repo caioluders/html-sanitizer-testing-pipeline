@@ -48,6 +48,9 @@ const yahooPurifySanitizer = new yahooHTMLPurifySanitizerClass();
 // mocks angularjs lib in node
 const mockAngularInNode = true;
 
+// dompurify serverside
+const createDOMPurify = require('dompurify');
+const { JSDOM } = require('jsdom');
 
 const arcgisSanitizerClass = require("@esri/arcgis-html-sanitizer").Sanitizer;
 const arcgisSanitizer = new arcgisSanitizerClass();
@@ -138,7 +141,8 @@ app.post('/sanitize', (req, res) => {
 		'bleach-strict': [],
 		'angular': [],
 		'arcgis': [],
-		'yahoopurify': []
+		'yahoopurify': [],
+		'dompurify': []
 	};
 
 	for (let i = 0; i < markups.length; i++) {
@@ -190,6 +194,15 @@ app.post('/sanitize', (req, res) => {
 		// arcgis
 		output = sanitizeWithArcgis(payload);
 		sanitizerResults['arcgis'].push({
+			input: payload,
+			output: output
+		});
+
+		// dompurify
+		const window = new JSDOM('').window;
+		const DOMPurify = createDOMPurify(window);
+		output = DOMPurify.sanitize(payload);
+		sanitizerResults['dompurify'].push({
 			input: payload,
 			output: output
 		});

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>HTML Sanitizers Playground</title>
+	<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+	<style>
+		/* Custom styles for dark theme and grid layout */
+		body {
+			background-color: #1a202c;
+			color: #e2e8f0;
+		}
+		.result-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+			gap: 1rem;
+		}
+		.result-item {
+			background-color: #2d3748;
+			border-radius: 0.5rem;
+			padding: 1rem;
+		}
+		pre {
+			white-space: pre-wrap;
+			word-wrap: break-word;
+			max-height: 400px; /* Adjust this value as needed */
+			overflow-y: auto;
+		}
+	</style>
+</head>
+
+<!-- sanitizer libraries -->
+<script src="/static/sanitizers/dompurify/lib.js" type="text/javascript"></script>
+<script src="/static/sanitizers/google-caja/lib.js" type="text/javascript"></script>
+<script src="/static/sanitizers/google-closure-lib/lib.js" type="text/javascript"></script>
+<script src="/static/sanitizers/js-xss/lib.js" type="text/javascript"></script>
+<script src="/static/sanitizers/sanitize-html/lib.js" type="text/javascript"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-sanitize.min.js"></script> 
+
+<body class="p-6" ng-app="myApp" ng-controller="myCtrl">
+	<div class="max-w-6xl mx-auto bg-gray-800 p-6 rounded-lg shadow-md">
+		<h1 class="text-3xl font-bold mb-4 text-white">HTML Sanitizers Playground</h1>
+		<textarea id="multilineInput" rows="4" cols="50" placeholder="Enter HTML markup here..." class="w-full p-2 border border-gray-600 rounded mb-4 bg-gray-700 text-white"></textarea>
+		<button onclick="runSanitizers()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Go</button>
+		<div id="resultsContainer" class="mt-4 result-grid"></div>
+	</div>
+
+	<!-- Hidden elements for Angular sanitization -->
+	<div style="display:none;">
+		<div ng-bind-html="userHtml"></div>
+		<div id="sanitization-output" ng-bind-html="userHtml"></div>
+	</div>
+
+	<script>
+		// google caja
+		function urlX(url) { if(/^https?:\/\//.test(url)) { return url }}
+		function idX(id) { return id }
+
+		// google closure
+		try {
+			goog.require('goog.dom');
+			goog.require('goog.html.SafeHtml');
+			goog.require('goog.html.sanitizer.HtmlSanitizer');
+		} catch(e) {
+			console.log(e)
+		}
+
+		// angular js initialization
+		var app = angular.module('myApp', ['ngSanitize']);
+		app.controller('myCtrl', function($scope) {
+			$scope.userHtml = '';
+		});
+
+		async function runSanitizers() {
+			const input = document.getElementById('multilineInput').value;
+			const resultsContainer = document.getElementById('resultsContainer');
+			resultsContainer.innerHTML = ''; // Clear previous results
+
+			const sanitizers = ['dompurify', 'caja', 'closure', 'jsxss', 'sanitizehtml', 'angular'];
+			// Add server IPs to sanitizers array
+			try {
+				var closure_sanitizer = new goog.html.sanitizer.HtmlSanitizer.Builder().build();
+			} catch(e) {
+				console.warn(e);
+			}
+
+			for (const sanitizer of sanitizers) {
+				let output = '';
+				try {
+					switch (sanitizer) {
+						case 'dompurify':
+							output = DOMPurify.sanitize(input);
+							break;
+						case 'caja':
+							output = html_sanitize(input, urlX, idX);
+							break;
+						case 'closure':
+							var fragment = goog.dom.safeHtmlToNode(closure_sanitizer.sanitize(input));
+							var template = window.document.createElement('template');
+							template.appendChild(fragment.cloneNode(true));
+							output = template.innerHTML;
+							break;
+						case 'jsxss':
+							output = filterXSS(input);
+							break;
+						case 'sanitizehtml':
+							output = sanitizeHtml(input);
+							break;
+						case 'angular':
+							var scope = angular.element(document.body).scope();
+							scope.$apply(function() {
+								scope.userHtml = input;
+							});
+							output = document.getElementById('sanitization-output').innerHTML;
+							break;
+					}
+				} catch (err) {
+					console.warn(err);
+					output = 'Error: ' + err.message;
+				}
+
+
+				// Display results
+				const resultDiv = document.createElement('div');
+				resultDiv.className = 'result-item';
+				const heading = document.createElement('h3');
+				heading.className = 'text-lg font-semibold mb-2 text-blue-300';
+				heading.textContent = sanitizer;
+				
+				const pre = document.createElement('pre');
+				pre.className = 'p-2 rounded mt-2 overflow-x-auto text-sm';
+				pre.textContent = output;
+				
+				resultDiv.appendChild(heading);
+				resultDiv.appendChild(pre);
+				resultsContainer.appendChild(resultDiv);
+			}
+			// Send request to server for server-side sanitization
+			fetch('/sanitize', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ markups: [input] }),
+			})
+			.then(response => response.json())
+			.then(data => {
+				// Display server-side results
+				for ( [sanitizer, result] of Object.entries(data)) {
+					for (const [key, value] of Object.entries(result)) {
+						const resultDiv = document.createElement('div');
+						resultDiv.className = 'result-item';
+						const heading = document.createElement('h3');
+						heading.className = 'text-lg font-semibold mb-2 text-blue-300';
+						heading.textContent = `${sanitizer} ${key} (Server-side)`;
+						
+						const pre = document.createElement('pre');
+						pre.className = 'p-2 rounded mt-2 text-sm';
+						pre.textContent = value[0].output;
+						
+						resultDiv.appendChild(heading);
+						resultDiv.appendChild(pre);
+						resultsContainer.appendChild(resultDiv);	
+					}
+					
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				const errorDiv = document.createElement('div');
+				errorDiv.className = 'text-red-500 mt-4';
+				errorDiv.textContent = 'Error fetching server-side results: ' + error.message;
+				resultsContainer.appendChild(errorDiv);
+			});
+		}
+
+		
+	</script>
+</body>
+</html>

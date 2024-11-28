@@ -76,6 +76,15 @@ require_once 'vendor/ezyang/htmlpurifier/library/HTMLPurifier.auto.php';
 // https://www.math.ucla.edu/sites/all/modules/htmLawed/htmLawed/htmLawed_README.htm#s3.2
 require_once 'libs/htmLawed/htmLawed.php';
 
+// After the other sanitizer imports, add:
+// ----------------------------------------------------------------------------------------- // 
+// WordPress wp_kses Sanitizer
+// ----------------------------------------------------------------------------------------- // 
+
+require_once 'libs/wordpress/kses.php';
+require_once 'libs/wordpress/formatting.php';
+require_once 'libs/wordpress/functions.php';
+
 
 
 
@@ -234,7 +243,8 @@ $results = array(
 	"htmlpurifier" => array(),
 	"htmlawed" => array(),
 	"htmlsanitizor" => array(),
-	"typo3" => array()
+	"typo3" => array(),
+	"wordpress_wp_kses" => array()
 );
 
 foreach($lines as $idx => $payload){
@@ -273,6 +283,32 @@ foreach($lines as $idx => $payload){
 
 	$output = $typo3Sanitizer->sanitize($payload);
 	array_push($results["typo3"],
+        array(
+            "input" => $payload,
+            "output" => $output
+        )
+    );
+
+	$allowed_html = array(
+		'a' => array(
+			'href' => array(),
+			'title' => array(),
+			'class' => array(),
+			'id' => array(),
+		),
+		'div' => array(
+			'class' => array(),
+			'id' => array(),
+		),
+		'span' => array(
+			'class' => array(),
+		),
+		'p' => array(),
+		'br' => array(),
+	);
+
+	$output = wp_kses($payload, $allowed_html);
+	array_push($results["wordpress_wp_kses"],
         array(
             "input" => $payload,
             "output" => $output

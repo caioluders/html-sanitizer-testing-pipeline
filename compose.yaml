@@ -1,0 +1,28 @@
+services:
+  clientside:
+    build:
+      context: ./clientside
+    ports:
+      - "3003:3003"
+
+  nodejs:
+    build:
+      context: ./node-js
+    ports:
+      - "3000:3000"
+
+  python:
+    build:
+      context: ./python
+    ports:
+      - "3001:3001"
+
+  php:
+    build:
+      context: ./php
+    ports:
+      - "80:80"
+
+networks:
+  default:
+    name: sanitizer-network
